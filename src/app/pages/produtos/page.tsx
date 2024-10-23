@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
 import { useState, useEffect } from 'react';
-import {makeRequest} from "@/app/services/apiService";
+import { makeRequest } from "@/app/services/apiService";
 import FormProduto from "@/app/components/FormProduto";
 import FormCategoria from "@/app/components/FormCategoria";
 import FiltroCategoria from "@/app/components/FiltroCategoria";
 import ListaProdutos from "@/app/components/ListaProdutos";
-import {Produto} from "@/app/interfaces/Produto";
-import {Categoria} from "@/app/interfaces/Categoria";
+import { Produto } from "@/app/interfaces/Produto";
+import { Categoria } from "@/app/interfaces/Categoria";
 import Header from "@/app/components/Header";
 
 const Produtos = () => {
@@ -20,8 +20,8 @@ const Produtos = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const produtosData = await makeRequest('/produtos', 'get');
-                const categoriasData = await makeRequest('/categorias', 'get');
+                const produtosData = await makeRequest<undefined, Produto[]>('/produtos', 'get');
+                const categoriasData = await makeRequest<undefined, Categoria[]>('/categorias', 'get');
                 setProdutos(produtosData);
                 setCategorias(categoriasData);
             } catch (error) {
@@ -33,7 +33,7 @@ const Produtos = () => {
 
     const handleAdicionarProduto = async () => {
         try {
-            const novoProdutoData = await makeRequest('/produtos/criar', 'post', novoProduto);
+            const novoProdutoData = await makeRequest<Produto, Produto>('/produtos/criar', 'post', novoProduto);
             setProdutos([...produtos, novoProdutoData]);
             setNovoProduto({ nome: '', categoria: { id: 0, nome: '' }, imagem: '' });
         } catch (error) {
@@ -47,7 +47,7 @@ const Produtos = () => {
             return;
         }
         try {
-            const novaCategoriaData = await makeRequest('/categorias/criar', 'post', { nome: novaCategoria });
+            const novaCategoriaData = await makeRequest<{ nome: string }, Categoria>('/categorias/criar', 'post', { nome: novaCategoria });
             setCategorias([...categorias, novaCategoriaData]);
             setNovaCategoria('');
         } catch (error) {
