@@ -41,7 +41,7 @@ const PedidosPage = () => {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [categorias, clientes, produtos]);
 
     const handleCriarPedido = async () => {
         try {
