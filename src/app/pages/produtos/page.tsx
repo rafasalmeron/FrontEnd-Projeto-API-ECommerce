@@ -27,7 +27,7 @@ const Produtos = () => {
             }
         };
         fetchData().catch((error) => console.error('Erro ao executar fetchData:', error));
-    }, []);
+    }, [categorias, novoProduto, novaCategoria, filtroCategoria]);
 
     const handleDeletarProduto = async (id: number) => {
         try {
@@ -101,7 +101,6 @@ const Produtos = () => {
     const categoriasFiltradas = filtroCategoria
         ? categorias.filter(categoria => categoria.id === filtroCategoria)
         : categorias;
-
     return (
         <>
             <Header />

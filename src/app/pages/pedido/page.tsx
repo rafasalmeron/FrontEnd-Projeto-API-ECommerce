@@ -1,101 +1,99 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Produto } from "@/app/interfaces/produto/Produto";
-import { Cliente } from "@/app/interfaces/cliente/Cliente";
+import { useState, useEffect } from 'react';
+import { makeRequest } from "@/app/services/apiService";
+import ListaPedidos, { PedidoResponse } from "@/app/components/pedido/ListaPedidos";
+import FiltroCliente from "@/app/components/cliente/FiltroCliente";
 import { PedidoCreateDTO } from "@/app/interfaces/pedido/PedidoCreatedDTO";
+import { Cliente } from "@/app/interfaces/cliente/Cliente";
+import { Produto } from "@/app/interfaces/produto/Produto";
+import Header from "@/app/components/Header";
+import FormPedido from "@/app/components/pedido/FormPedidos";
+import { Categoria } from "@/app/interfaces/categoria/Categoria";
 
-interface FormPedidoProps {
-    novoPedido: PedidoCreateDTO;
-    setNovoPedido: React.Dispatch<React.SetStateAction<PedidoCreateDTO>>;
-    clientes: Cliente[];
-    produtos: Produto[];
-    handleCriarPedido: () => void;
-}
+const PedidosPage = () => {
+    const [pedidos, setPedidos] = useState<PedidoResponse[]>([]);
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [categorias, setCategorias] = useState<Categoria[]>([]);
+    const [produtos, setProdutos] = useState<Produto[]>([]);
+    const [novoPedido, setNovoPedido] = useState<PedidoCreateDTO>({
+        clienteId: 0,
+        produtosPedidos: []
+    });
+    const [filtroCliente, setFiltroCliente] = useState<number | null>(null);
 
-const FormPedido: React.FC<FormPedidoProps> = ({ novoPedido, setNovoPedido, clientes, produtos, handleCriarPedido }) => {
-    const [produtosSelecionados, setProdutosSelecionados] = useState<number[]>([]);
+    const fetchData = async () => {
+        try {
+            const pedidosData = await makeRequest<undefined, PedidoResponse[]>('/pedidos', 'get');
+            const clientesData = await makeRequest<undefined, Cliente[]>('/clientes', 'get');
+            const categoriasData = await makeRequest<undefined, Categoria[]>('/categorias', 'get');
 
-    // Inicialize corretamente clienteId e produtosPedidos no estado inicial
-    const handleClienteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const clienteId = Number(e.target.value);
-        setNovoPedido(prev => ({
-            ...prev,
-            clienteId, // Garantindo que clienteId seja atualizado corretamente
-            produtosPedidos: prev.produtosPedidos || [] // Inicializando produtosPedidos, se não estiver
-        }));
-    };
+            setPedidos(pedidosData || []);
+            const allProdutos = categoriasData.flatMap(categoria => categoria.produto);
+            setProdutos(allProdutos);
 
-    const handleProdutoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const produtoId = Number(e.target.value);
-
-        if (produtoId && !produtosSelecionados.includes(produtoId)) {
-            setProdutosSelecionados([...produtosSelecionados, produtoId]);
-            setNovoPedido(prev => ({
-                ...prev,
-                produtosPedidos: [...prev.produtosPedidos, { produtoId, quantidade: 1 }] // Adiciona produtosPedidos corretamente
-            }));
+            setClientes(clientesData);
+            setCategorias(categoriasData);
+        } catch (error) {
+            console.error('Erro ao buscar dados:', error);
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        handleCriarPedido();
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleCriarPedido = async () => {
+        try {
+            const novoPedidoData = await makeRequest<PedidoCreateDTO, PedidoResponse>('/pedidos/criar', 'post', novoPedido);
+
+            if (novoPedidoData && novoPedidoData.id) {
+                setPedidos((prevPedidos) => [...prevPedidos, novoPedidoData]);
+            } else {
+                console.error("Erro: Dados inválidos retornados após criação do pedido.");
+            }
+            setNovoPedido({
+                clienteId: 0,
+                produtosPedidos: []
+            });
+        } catch (error) {
+            console.error('Erro ao criar pedido:', error);
+        }
     };
 
+
+    const pedidosFiltrados = filtroCliente
+        ? pedidos.filter(pedido => pedido.nomeCliente === clientes.find(c => c.id === filtroCliente)?.nome)
+        : pedidos;
+
     return (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mb-8 max-w-md mx-auto">
-            <h2 className="text-xl font-semibold mb-4">Criar Pedido</h2>
+        <>
+            <Header />
+            <div className="p-8">
+                <h1 className="text-3xl font-bold mb-8 text-center">Gestão de Pedidos</h1>
 
-            <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Cliente</label>
-                <select
-                    name="clienteId"
-                    value={novoPedido?.clienteId || 0} // Aqui garantimos que clienteId está definido
-                    onChange={handleClienteChange}
-                    className="w-full p-2 border border-gray-300 rounded"
-                >
-                    <option value="0">Selecione um Cliente</option>
-                    {clientes.map(cliente => (
-                        <option key={cliente.id} value={cliente.id}>
-                            {cliente.nome}
-                        </option>
-                    ))}
-                </select>
+                <FiltroCliente
+                    clientes={clientes}
+                    filtroCliente={filtroCliente}
+                    setFiltroCliente={setFiltroCliente}
+                />
+
+                <FormPedido
+                    novoPedido={novoPedido}
+                    setNovoPedido={setNovoPedido}
+                    clientes={clientes}
+                    produtos={produtos}
+                    handleCriarPedido={handleCriarPedido}
+                />
+
+                {pedidosFiltrados.length === 0 ? (
+                    <p>Nenhum pedido encontrado.</p>
+                ) : (
+                    <ListaPedidos pedidos={pedidosFiltrados} />
+                )}
             </div>
-
-            <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Produtos</label>
-                <select
-                    name="produto"
-                    onChange={handleProdutoChange}
-                    className="w-full p-2 border border-gray-300 rounded"
-                >
-                    <option value="0">Selecione um Produto</option>
-                    {Array.isArray(produtos) && produtos.map(produto => (
-                        <option key={produto.id} value={produto.id}>
-                            {produto.nome}
-                        </option>
-                    ))}
-                </select>
-
-                <div className="mt-4">
-                    <p>Produtos Selecionados:</p>
-                    <ul>
-                        {produtosSelecionados.map(produtoId => (
-                            <li key={produtoId}>
-                                {produtos.find(p => p.id === produtoId)?.nome}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Criar Pedido
-            </button>
-        </form>
+        </>
     );
 };
 
-export default FormPedido;
+export default PedidosPage;
