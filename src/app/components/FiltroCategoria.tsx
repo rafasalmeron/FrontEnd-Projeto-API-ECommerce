@@ -11,7 +11,7 @@ const FiltroCategoria: React.FC<FiltroCategoriaProps> = ({ categorias, filtroCat
                 className="w-full p-2 border border-gray-300 rounded"
             >
                 <option value="">Todas as Categorias</option>
-                {categorias.map((categoria) => (
+                {Array.isArray(categorias) && categorias.map((categoria) => (
                     <option key={categoria.id} value={categoria.id}>
                         {categoria.nome}
                     </option>

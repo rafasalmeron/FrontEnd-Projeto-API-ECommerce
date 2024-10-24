@@ -10,20 +10,34 @@ import { Produto } from "@/app/interfaces/Produto";
 import { Categoria } from "@/app/interfaces/Categoria";
 import Header from "@/app/components/Header";
 
+interface PaginatedResponse<T> {
+    content: T[];
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
+    numberOfElements: number;
+    first: boolean;
+    last: boolean;
+    empty: boolean;
+}
+
 const Produtos = () => {
     const [produtos, setProdutos] = useState<Produto[]>([]);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
-    const [novoProduto, setNovoProduto] = useState<Produto>({ nome: '', categoria: { id: 0, nome: '' }, imagem: '' });
+    const [novoProduto, setNovoProduto] = useState<Produto>({ id: 0, valor: 0, nome: '', categoriaId: 0, imagem: '' });
     const [novaCategoria, setNovaCategoria] = useState<string>('');
     const [filtroCategoria, setFiltroCategoria] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const produtosData = await makeRequest<undefined, Produto[]>('/produtos', 'get');
+                const produtosData = await makeRequest<undefined, {content: Produto[]}>('/produtos', 'get');
                 const categoriasData = await makeRequest<undefined, Categoria[]>('/categorias', 'get');
-                setProdutos(produtosData);
+                setProdutos(produtosData.content);
                 setCategorias(categoriasData);
+                console.log('Dados das categorias:', categoriasData);
+                console.log('Dados dos produtos:', produtosData.content);
             } catch (error) {
                 console.error('Erro ao buscar produtos e categorias:', error);
             }
@@ -31,13 +45,36 @@ const Produtos = () => {
         fetchData().catch((error) => console.error('Erro ao executar fetchData:', error));
     }, []);
 
+    const handleDeletarProduto = async (id: number) => {
+        try {
+            await makeRequest<undefined, void>(`/produtos/${id}`, 'delete');
+            setProdutos(produtos.filter((produto) => produto.id !== id));
+        } catch (error) {
+            console.error('Erro ao deletar produto:', error);
+        }
+    };
+
+    const handleEditarProduto = (produto: Produto) => {
+        setNovoProduto(produto);
+    };
+
     const handleAdicionarProduto = async () => {
         try {
-            const novoProdutoData = await makeRequest<Produto, Produto>('/produtos/criar', 'post', novoProduto);
-            setProdutos([...produtos, novoProdutoData]);
-            setNovoProduto({ nome: '', categoria: { id: 0, nome: '' }, imagem: '' });
+            if (novoProduto.id !== 0) {
+                await makeRequest<Produto, Produto>(`/produtos/${novoProduto.id}`, 'put', novoProduto);
+                setProdutos((prevProdutos) =>
+                    prevProdutos.map((produto) =>
+                        produto.id === novoProduto.id ? novoProduto : produto
+                    )
+                );
+            } else {
+                const novoProdutoData = await makeRequest<Produto, Produto>('/produtos/criar', 'post', novoProduto);
+                setProdutos([...produtos, novoProdutoData]);
+            }
+
+            setNovoProduto({ id: 0, valor: 0, nome: '', categoriaId: 0, imagem: '' });
         } catch (error) {
-            console.error('Erro ao criar produto:', error);
+            console.error('Erro ao adicionar ou editar produto:', error);
         }
     };
 
@@ -56,9 +93,8 @@ const Produtos = () => {
     };
 
     const produtosFiltrados = filtroCategoria
-        ? produtos.filter((produto) => produto.categoria.id === filtroCategoria)
+        ? produtos.filter((produto) => produto.categoriaId === filtroCategoria)
         : produtos;
-
     return (
         <>
             <Header />
@@ -85,7 +121,12 @@ const Produtos = () => {
                     setFiltroCategoria={setFiltroCategoria}
                 />
 
-                <ListaProdutos produtos={produtosFiltrados} />
+                <ListaProdutos
+                    produtos={produtosFiltrados}
+                    handleDeletarProduto={handleDeletarProduto}
+                    handleEditarProduto={handleEditarProduto}
+                />
+
             </div>
         </>
     );

@@ -1,5 +1,5 @@
 import React from 'react';
-import {FormProdutoProps} from "@/app/interfaces/FormProdutosProps";
+import { FormProdutoProps } from "@/app/interfaces/FormProdutosProps";
 
 const FormProduto: React.FC<FormProdutoProps> = ({ novoProduto, setNovoProduto, categorias, handleAdicionarProduto }) => {
     return (
@@ -17,22 +17,31 @@ const FormProduto: React.FC<FormProdutoProps> = ({ novoProduto, setNovoProduto, 
             <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Categoria</label>
                 <select
-                    value={novoProduto.categoria.id}
+                    value={novoProduto.categoriaId || 0} // Usando categoriaId diretamente
                     onChange={(e) =>
                         setNovoProduto({
                             ...novoProduto,
-                            categoria: categorias.find((cat) => cat.id === parseInt(e.target.value)) || { id: 0, nome: '' },
+                            categoriaId: parseInt(e.target.value, 10), // Atualiza o categoriaId
                         })
                     }
                     className="w-full p-2 border border-gray-300 rounded"
                 >
                     <option value="0">Selecione uma Categoria</option>
-                    {categorias.map((categoria) => (
+                    {Array.isArray(categorias) && categorias.map((categoria) => (
                         <option key={categoria.id} value={categoria.id}>
                             {categoria.nome}
                         </option>
                     ))}
                 </select>
+            </div>
+            <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Valor do Produto</label>
+                <input
+                    type="number"
+                    value={novoProduto.valor}
+                    onChange={(e) => setNovoProduto({ ...novoProduto, valor: parseFloat(e.target.value) })}
+                    className="w-full p-2 border border-gray-300 rounded"
+                />
             </div>
             <button
                 onClick={handleAdicionarProduto}

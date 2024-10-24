@@ -10,7 +10,7 @@ export const makeRequest = async <T, R = T>(
         const response: AxiosResponse<R> = await axiosInstance({
             url,
             method,
-            data,
+            ...(data && { data })
         });
         return response.data;
     } catch (error) {

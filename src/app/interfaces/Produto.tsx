@@ -1,8 +1,8 @@
-import {Categoria} from "@/app/interfaces/Categoria";
 
 export interface Produto {
-    id?: number;
+    id: number;
     nome: string;
-    categoria: Categoria;
+    valor: number;
+    categoriaId: number;
     imagem?: string;
 }
