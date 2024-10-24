@@ -1,5 +1,5 @@
 import React from 'react';
-import {FiltroCategoriaProps} from "@/app/interfaces/FiltroCategoriaProps";
+import {FiltroCategoriaProps} from "@/app/interfaces/categoria/FiltroCategoriaProps";
 
 const FiltroCategoria: React.FC<FiltroCategoriaProps> = ({ categorias, filtroCategoria, setFiltroCategoria }) => {
     return (

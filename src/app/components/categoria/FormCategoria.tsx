@@ -1,5 +1,5 @@
 import React from 'react';
-import {FormCategoriaProps} from "@/app/interfaces/FormCategoriaProps";
+import {FormCategoriaProps} from "@/app/interfaces/categoria/FormCategoriaProps";
 
 const FormCategoria: React.FC<FormCategoriaProps> = ({ novaCategoria, setNovaCategoria, handleAdicionarCategoria }) => {
     return (

@@ -1,39 +1,36 @@
-'use client'
-
-import React, { useState } from 'react';
-import { Produto } from "@/app/interfaces/Produto";
+import { Cliente } from "@/app/interfaces/cliente/Cliente";
 import Image from "next/image";
-import {Categoria} from "@/app/interfaces/Categoria";
+import React, { useState } from "react";
 
-interface ProdutoCardProps {
-    produto: Produto;
-    categoria: Categoria;
-    handleDeletarProduto: (id: number) => void;
-    handleEditarProduto: (produto: Produto) => void;
+interface ClienteCardProps {
+    cliente: Cliente;
+    handleEditarCliente: (cliente: Cliente) => void;
+    handleDeletarCliente: (id: number) => void;
 }
 
-
-const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, handleDeletarProduto, handleEditarProduto }) => {
+const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, handleEditarCliente, handleDeletarCliente }) => {
+    const imageUrl = cliente.imagem || 'https://dummyimage.com/150x150/cccccc/ffffff&text=FotoCliente';
     const [menuAberto, setMenuAberto] = useState(false);
-    const imageUrl = produto.imagem || 'https://dummyimage.com/150x150/cccccc/ffffff&text=Produto';
 
     const toggleMenu = () => {
         setMenuAberto(!menuAberto);
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md relative">
+        <div className="bg-white p-6 rounded-lg shadow-md mb-4 relative">
             <Image
                 src={imageUrl}
-                alt={produto.nome}
+                alt={cliente.nome}
+                className="w-full h-32 object-cover mt-4 rounded"
                 width={150}
                 height={150}
-                className="w-full h-32 object-cover mb-4 rounded"
                 placeholder="blur"
                 blurDataURL={imageUrl}
             />
-            <h3 className="text-lg font-bold mb-2">{produto.nome}</h3>
-
+            <h3 className="text-lg font-bold mb-2">{cliente.nome}</h3>
+            <p className="text-sm text-gray-600"><strong>Email:</strong> {cliente.email}</p>
+            <p className="text-sm text-gray-600"><strong>Telefone:</strong> {cliente.telefone}</p>
+            <p className="text-sm text-gray-600"><strong>CPF:</strong> {cliente.cpf}</p>
 
             {/* Botão de opções */}
             <div className="absolute top-2 right-2">
@@ -46,7 +43,7 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, handleDeletarProduto
                     <div className="absolute right-0 bg-white border rounded shadow-md mt-2 z-10">
                         <button
                             onClick={() => {
-                                handleEditarProduto(produto);
+                                handleEditarCliente(cliente);
                                 toggleMenu();
                             }}
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
@@ -55,7 +52,7 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, handleDeletarProduto
                         </button>
                         <button
                             onClick={() => {
-                                handleDeletarProduto(produto.id);
+                                handleDeletarCliente(cliente.id);
                                 toggleMenu();
                             }}
                             className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
@@ -69,4 +66,4 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, handleDeletarProduto
     );
 };
 
-export default ProdutoCard;
+export default ClienteCard;

@@ -1,9 +1,7 @@
-'use client';
-
 import React, { useState } from 'react';
 import { Produto } from "@/app/interfaces/produto/Produto";
 import { Cliente } from "@/app/interfaces/cliente/Cliente";
-import { PedidoCreateDTO } from "@/app/interfaces/pedido/PedidoCreatedDTO";
+import {PedidoCreateDTO} from "@/app/interfaces/pedido/PedidoCreatedDTO";
 
 interface FormPedidoProps {
     novoPedido: PedidoCreateDTO;
@@ -16,24 +14,29 @@ interface FormPedidoProps {
 const FormPedido: React.FC<FormPedidoProps> = ({ novoPedido, setNovoPedido, clientes, produtos, handleCriarPedido }) => {
     const [produtosSelecionados, setProdutosSelecionados] = useState<number[]>([]);
 
-    // Inicialize corretamente clienteId e produtosPedidos no estado inicial
     const handleClienteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const clienteId = Number(e.target.value);
-        setNovoPedido(prev => ({
+        const { value } = e.target;
+        const clienteId = Number(value);
+
+        setNovoPedido((prev: PedidoCreateDTO) => ({
             ...prev,
-            clienteId, // Garantindo que clienteId seja atualizado corretamente
-            produtosPedidos: prev.produtosPedidos || [] // Inicializando produtosPedidos, se não estiver
+            clienteId: clienteId
         }));
     };
 
     const handleProdutoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const produtoId = Number(e.target.value);
+        const { value } = e.target;
+        const produtoId = Number(value);
 
         if (produtoId && !produtosSelecionados.includes(produtoId)) {
             setProdutosSelecionados([...produtosSelecionados, produtoId]);
-            setNovoPedido(prev => ({
+
+            setNovoPedido((prev: PedidoCreateDTO) => ({
                 ...prev,
-                produtosPedidos: [...prev.produtosPedidos, { produtoId, quantidade: 1 }] // Adiciona produtosPedidos corretamente
+                produtosPedidos: [
+                    ...prev.produtosPedidos,
+                    { produtoId: produtoId, quantidade: 1 }
+                ]
             }));
         }
     };
@@ -51,7 +54,7 @@ const FormPedido: React.FC<FormPedidoProps> = ({ novoPedido, setNovoPedido, clie
                 <label className="block text-sm font-medium mb-1">Cliente</label>
                 <select
                     name="clienteId"
-                    value={novoPedido?.clienteId || 0} // Aqui garantimos que clienteId está definido
+                    value={novoPedido.clienteId || 0}
                     onChange={handleClienteChange}
                     className="w-full p-2 border border-gray-300 rounded"
                 >

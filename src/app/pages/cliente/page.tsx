@@ -2,20 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { makeRequest } from "@/app/services/apiService";
-import FormCliente from "@/app/components/FormCliente";
+import FormCliente from "@/app/components/cliente/FormCliente";
 import Header from "@/app/components/Header";
-import { FormClienteProps } from "@/app/interfaces/FormClienteProps";
-import ClienteCard from "@/app/components/ClienteCard";
+import { Cliente } from "@/app/interfaces/cliente/Cliente";
+import ClienteCard from "@/app/components/cliente/ClienteCard";
 
 const ClientePage = () => {
-    const [clientes, setClientes] = useState<FormClienteProps[]>([]);
-    const [novoCliente, setNovoCliente] = useState<FormClienteProps>({ id: 0, nome: '', email: '', telefone: '', cpf: '', imagem: '', cep: '' });
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [novoCliente, setNovoCliente] = useState<Cliente>({ id: 0, nome: '', email: '', telefone: '', cpf: '', imagem: '', cep: '' });
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         const fetchClientes = async () => {
             try {
-                const clienteData = await makeRequest<undefined, FormClienteProps[]>('/clientes', 'get');
+                const clienteData = await makeRequest<undefined, Cliente[]>('/clientes', 'get');
                 setClientes(clienteData);
             } catch (error) {
                 console.error('Erro ao buscar clientes:', error);
@@ -27,13 +27,13 @@ const ClientePage = () => {
     const handleAdicionarCliente = async () => {
         try {
             if (isEditing) {
-                await makeRequest<FormClienteProps, FormClienteProps>(`/clientes/${novoCliente.id}`, 'put', novoCliente);
+                await makeRequest<Cliente, Cliente>(`/clientes/${novoCliente.id}`, 'put', novoCliente);
                 setClientes((prevClientes) =>
                     prevClientes.map((cliente) => (cliente.id === novoCliente.id ? novoCliente : cliente))
                 );
                 setIsEditing(false);
             } else {
-                const novoClienteData = await makeRequest<FormClienteProps, FormClienteProps>('/clientes/criar', 'post', novoCliente);
+                const novoClienteData = await makeRequest<Cliente, Cliente>('/clientes/criar', 'post', novoCliente);
                 setClientes([...clientes, novoClienteData]);
             }
             setNovoCliente({ id: 0, nome: '', email: '', telefone: '', cpf: '', imagem: '', cep: '' });
@@ -42,7 +42,7 @@ const ClientePage = () => {
         }
     };
 
-    const handleEditarCliente = (cliente: FormClienteProps) => {
+    const handleEditarCliente = (cliente: Cliente) => {
         setNovoCliente(cliente); // Preenche o formulário com o cliente para edição
         setIsEditing(true); // Marca como edição
     };

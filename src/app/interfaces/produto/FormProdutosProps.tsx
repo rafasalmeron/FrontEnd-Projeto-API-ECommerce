@@ -1,5 +1,5 @@
-import {Produto} from "@/app/interfaces/Produto";
-import {Categoria} from "@/app/interfaces/Categoria";
+import {Produto} from "@/app/interfaces/produto/Produto";
+import {Categoria} from "@/app/interfaces/categoria/Categoria";
 
 export interface FormProdutoProps {
     novoProduto: Produto;

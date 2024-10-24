@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormProdutoProps } from "@/app/interfaces/FormProdutosProps";
+import { FormProdutoProps } from "@/app/interfaces/produto/FormProdutosProps";
 
 const FormProduto: React.FC<FormProdutoProps> = ({ novoProduto, setNovoProduto, categorias, handleAdicionarProduto }) => {
     return (

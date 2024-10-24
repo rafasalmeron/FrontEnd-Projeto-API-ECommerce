@@ -1,9 +1,9 @@
 import React from 'react';
-import { FormClienteProps } from '@/app/interfaces/FormClienteProps';
+import { Cliente } from '@/app/interfaces/cliente/Cliente';
 
 interface FormClienteComponentProps {
-    cliente: FormClienteProps;
-    setCliente: React.Dispatch<React.SetStateAction<FormClienteProps>>;
+    cliente: Cliente;
+    setCliente: React.Dispatch<React.SetStateAction<Cliente>>;
     handleAdicionarCliente: () => void;
 }
 
